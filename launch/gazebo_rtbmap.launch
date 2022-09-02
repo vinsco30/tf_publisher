@@ -1,0 +1,3 @@
+  <launch>
+    <node pkg="tf_publisher" type="gazebo_rtabmap" name="gazebo_rtabmap" />
+  </launch>

@@ -1,0 +1,4 @@
+  <launch>
+    <node pkg="tf" type="static_transform_publisher" name="camera_base" args="0.15 0 -0.10 0 0.57 0 d400_link base_link 100" />
+    <node pkg="tf_publisher" type="tf_publisher" name="publisher" />
+  </launch>

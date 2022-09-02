@@ -1,0 +1,40 @@
+<launch>
+    <node pkg="tf" type="static_transform_publisher" name="odom_map" args="5.0 0.0 0.0 0 0 0 map odom 100" />
+</launch>
+
+<launch>
+  <group ns="rtabmap">
+
+    <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_ros/rgbd_sync" output="screen">
+      <remap from="rgb/image"       to="/d400/color/image_raw"/>
+      <remap from="depth/image"     to="/d400/aligned_depth_to_color/image_raw"/>
+      <remap from="rgb/camera_info" to="/d400/color/camera_info"/>
+      <remap from="rgbd_image"      to="rgbd_image"/> <!-- output -->
+      
+      <!-- Should be true for not synchronized camera topics 
+           (e.g., false for kinectv2, zed, realsense, true for xtion, kinect360)-->
+      <param name="approx_sync"       value="false"/> 
+    </node>
+
+    <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
+          <param name="frame_id" type="string" value="base_link"/>
+
+          <param name="subscribe_depth" type="bool" value="false"/>
+          <param name="subscribe_rgbd" type="bool" value="true"/>
+
+          <remap from="odom" to="/t265/odom/sample"/>
+
+          <remap from="rgbd_image" to="rgbd_image"/>
+
+          <param name="queue_size" type="int" value="200"/>
+
+          <!-- RTAB-Map's parameters -->
+          <param name="RGBD/AngularUpdate"        type="string" value="0.01"/>
+          <param name="RGBD/LinearUpdate"         type="string" value="0.01"/>
+          <param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
+    </node>
+  </group>
+  <!-- TF camera_link - base_link -->
+  <node pkg="tf" type="static_transform_publisher" name="base_camd400" args="0.20 0.0 -0.10 0 0.52 0 base_link d400_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="camd400_t265" args="0.0 0.0 0.05 0 0 0 d400_link t265_link 100" />
+</launch>
